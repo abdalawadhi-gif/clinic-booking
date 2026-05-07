@@ -194,6 +194,16 @@
       outline:none;
     }
 
+    .success-message{
+      display:none;
+      margin-top:20px;
+      background:#e8fff0;
+      color:#0f8a43;
+      padding:18px;
+      border-radius:14px;
+      font-weight:bold;
+    }
+
     footer{
       text-align:center;
       padding:40px;
@@ -253,13 +263,13 @@
     </div>
 
     <nav>
-  <a href="#">Home</a>
-  <a href="#">Consultants</a>
-  <a href="#">Clinics</a>
-  <a href="#">Packages</a>
-  <a href="#">Booking</a>
-  <a href="#">Contact</a>
-</nav>
+      <a href="#">Home</a>
+      <a href="#">Consultants</a>
+      <a href="#">Clinics</a>
+      <a href="#">Packages</a>
+      <a href="#">Booking</a>
+      <a href="#">Contact</a>
+    </nav>
 
   </header>
 
@@ -335,24 +345,28 @@
 
     <div class="booking-box">
 
-      <input type="text" placeholder="Full Name">
+      <input type="text" id="name" placeholder="Full Name">
 
-      <input type="email" placeholder="Email Address">
+      <input type="email" id="email" placeholder="Email Address">
 
-      <input type="tel" placeholder="Phone Number">
+      <input type="tel" id="phone" placeholder="Phone Number">
 
-      <select>
+      <select id="service">
         <option>Select Service</option>
         <option>Financial Consultation</option>
         <option>Debt Management</option>
         <option>Online Appointment</option>
       </select>
 
-      <input type="date">
+      <input type="date" id="date">
 
-      <button class="btn">
+      <button class="btn" onclick="saveBooking()">
         Confirm Booking
       </button>
+
+      <div class="success-message" id="successMessage">
+        Appointment booked successfully!
+      </div>
 
     </div>
 
@@ -361,6 +375,72 @@
   <footer>
     © 2026 CashClinic — All Rights Reserved
   </footer>
+
+  <!-- Firebase -->
+
+  <script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import {
+      getFirestore,
+      collection,
+      addDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgYPvZxEaRdIcUTNUiJL7cpHAKxmAVXnw",
+      authDomain: "cashclinic-ac7e6.firebaseapp.com",
+      projectId: "cashclinic-ac7e6",
+      storageBucket: "cashclinic-ac7e6.firebasestorage.app",
+      messagingSenderId: "725888736611",
+      appId: "1:725888736611:web:2a94b0fff21e4101930756"
+    };
+
+    const app = initializeApp(firebaseConfig);
+
+    const db = getFirestore(app);
+
+    window.saveBooking = async function(){
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const service = document.getElementById("service").value;
+      const date = document.getElementById("date").value;
+
+      if(!name || !email || !phone || !date){
+        alert("Please fill all fields");
+        return;
+      }
+
+      try{
+
+        await addDoc(collection(db, "appointments"), {
+          name,
+          email,
+          phone,
+          service,
+          date,
+          createdAt: new Date()
+        });
+
+        document.getElementById("successMessage").style.display = "block";
+
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("phone").value = "";
+        document.getElementById("service").selectedIndex = 0;
+        document.getElementById("date").value = "";
+
+      } catch(error){
+        console.error(error);
+        alert("Error saving booking");
+      }
+
+    }
+
+  </script>
 
 </body>
 </html>
